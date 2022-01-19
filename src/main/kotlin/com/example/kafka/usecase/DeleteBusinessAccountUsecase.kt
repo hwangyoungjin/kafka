@@ -5,6 +5,8 @@ import com.example.kafka.Aggregator.EventPublisher
 import com.example.kafka.usecase.event.ActorEventDto
 import com.example.kafka.usecase.event.BusinessAccountDto
 import com.example.kafka.usecase.event.DeleteBusinessAccountEvent
+import kotlinx.coroutines.runBlocking
+import org.springframework.boot.CommandLineRunner
 import java.time.LocalDateTime
 import javax.inject.Named
 
@@ -12,7 +14,7 @@ import javax.inject.Named
 class DeleteBusinessAccountUsecase(
     private val eventPublisher: EventPublisher,
     private val eventConsumer: EventConsumer,
-) {
+) : CommandLineRunner {
     suspend fun deleteEventProduce() {
         eventPublisher.deleteEventPublisher(
             DeleteBusinessAccountEvent(
@@ -31,7 +33,9 @@ class DeleteBusinessAccountUsecase(
         )
     }
 
-    suspend fun deleteEventConsume() {
-        eventConsumer.deleteEventConsumer()
+    override fun run(vararg args: String?) {
+        runBlocking {
+            eventConsumer.deleteEventConsumer()
+        }
     }
 }
