@@ -13,9 +13,9 @@ class Runner(
 ) : ApplicationRunner {
     override fun run(args: ApplicationArguments?) {
         runBlocking {
-            val producer = async { deleteBusinessAccountUsecase.deleteEventProduce() }
+//            val producer = async { deleteBusinessAccountUsecase.deleteEventProduce() }
 //            deleteBusinessAccountUsecase.deleteEventConsume()
-            producer.await()
+//            producer.await()
 //            consumer.await()
         }
     }

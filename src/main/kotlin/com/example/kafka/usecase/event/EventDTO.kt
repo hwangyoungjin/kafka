@@ -1,12 +1,38 @@
 package com.example.kafka.usecase.event
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.fasterxml.jackson.annotation.JsonTypeName
 import java.time.LocalDateTime
 
+@JsonTypeName(BusinessAccountEventType.BA_CREATE)
+data class CreateBusinessAccountEvent(
+    val businessAccountDto: BusinessAccountDto,
+    val actorDto: ActorEventDto,
+    val createdAt: LocalDateTime
+) : BusinessAccountEvent(BusinessAccountEventType.BA_CREATE, businessAccountDto.id.toString())
+
+@JsonTypeName(BusinessAccountEventType.BA_UPDATE)
+data class UpdateBusinessAccountEvent(
+    val beforeUpdate: BusinessAccountDto,
+    val afterUpdate: BusinessAccountDto,
+    val actorDto: ActorEventDto,
+    val updatedAt: LocalDateTime
+) : BusinessAccountEvent(BusinessAccountEventType.BA_UPDATE, afterUpdate.id.toString())
+
+@JsonTypeName(BusinessAccountEventType.BA_DELETE)
 data class DeleteBusinessAccountEvent(
     val businessAccountDto: BusinessAccountDto,
     val actorDto: ActorEventDto,
     val deletedAt: LocalDateTime
 ) : BusinessAccountEvent(BusinessAccountEventType.BA_DELETE, businessAccountDto.id.toString())
+
+@JsonTypeName(BusinessAccountEventType.BA_UNDELETE)
+data class UndeleteBusinessAccountEvent(
+    val businessAccountDto: BusinessAccountDto,
+    val actorDto: ActorEventDto,
+    val undeletedAt: LocalDateTime
+) : BusinessAccountEvent(BusinessAccountEventType.BA_UNDELETE, businessAccountDto.id.toString())
+
 
 data class BusinessAccountDto(
     val id: Long,
@@ -37,7 +63,12 @@ data class ActorEventDto(
     var displayRegionCheckinsCount: Int? = null,
 )
 
-
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "type",
+    visible = true
+)
 sealed class BusinessAccountEvent(
     type: String,
     subject: String,

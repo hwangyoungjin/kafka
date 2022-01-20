@@ -23,6 +23,10 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
+    // https://mvnrepository.com/artifact/org.springframework/spring-messaging
+    implementation("org.springframework:spring-messaging:5.3.15")
+
+
     // https://mvnrepository.com/artifact/io.projectreactor.kafka/reactor-kafka
     implementation("io.projectreactor.kafka:reactor-kafka:1.3.9")
 

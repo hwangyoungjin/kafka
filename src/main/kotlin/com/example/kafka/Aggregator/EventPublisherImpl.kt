@@ -65,7 +65,7 @@ class EventPublisherImpl(
                 val metadata = r.recordMetadata()
                 println(
                     "Message ${r.correlationMetadata()} sent successfully, topic-partition=${metadata.topic()}-" +
-                        "${metadata.partition()} offset=${metadata.offset()}\n"
+                            "${metadata.partition()} offset=${metadata.offset()}\n"
                 )
             }
     }
