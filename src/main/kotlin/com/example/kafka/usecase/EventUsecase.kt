@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import javax.inject.Named
 
 @Named
-class DeleteBusinessAccountUsecase(
+class EventUsecase(
     private val eventPublisher: EventPublisher,
     private val eventConsumer: EventConsumer,
 ) : CommandLineRunner {

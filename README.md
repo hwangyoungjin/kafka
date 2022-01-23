@@ -57,3 +57,27 @@ Topic: account  TopicId: imn0FQ_FRo2O5LTjM27PGw PartitionCount: 2       Replicat
         Topic: account  Partition: 1    Leader: 1001    Replicas: 1001  Isr: 1001
 
 ```
+### 3. Config
+#### 1. Producer
+```kotlin
+@Bean
+    fun kafkaSender(): KafkaSender<String, String> {
+        val props = mapOf<String, Any>(
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBootStrapServers,
+            ProducerConfig.CLIENT_ID_CONFIG to "group-producer",
+            ProducerConfig.ACKS_CONFIG to "all", 
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java, //mercury
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java
+        )
+        val senderOptions = SenderOptions.create<String, String>(props)
+        return KafkaSender.create(senderOptions)
+    }
+```
+- ACK_CONFIG = all
+```text
+메시지의 내구성을 강화 
+ - 카프카로 전송되는 모든 메시지는 안전한 저장소인 카프카의 로컬 디스크에 저장된다.
+ - 컨슈머가 메시지를 가져가더라고 삭제X
+ - 메시지는 브로커 한대에만 저장되는것이 아닌 여러대에 저장되어 한 브로커가 down되더라도 메시지 복구 가능
+```
