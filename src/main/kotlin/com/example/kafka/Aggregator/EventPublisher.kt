@@ -1,7 +1,7 @@
 package com.example.kafka.Aggregator
 
-import com.example.kafka.usecase.event.DeleteBusinessAccountEvent
+import com.example.kafka.usecase.event.DeleteEvent
 
 interface EventPublisher {
-    suspend fun deleteEventPublisher(deleteBusinessAccountEvent: DeleteBusinessAccountEvent)
+    suspend fun publish(deleteEvent: DeleteEvent)
 }

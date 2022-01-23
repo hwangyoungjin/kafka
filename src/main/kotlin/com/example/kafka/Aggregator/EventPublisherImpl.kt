@@ -1,6 +1,6 @@
 package com.example.kafka.Aggregator
 
-import com.example.kafka.usecase.event.DeleteBusinessAccountEvent
+import com.example.kafka.usecase.event.DeleteEvent
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -20,9 +20,6 @@ import javax.inject.Named
 
 @Named
 class EventPublisherImpl(
-//    ApplicationEventPublisher는 Spring의 ApplicationContext가 상속하는 인터페이스 중 하나이다.
-//    옵저버 패턴의 구현체로 이벤트 프로그래밍에 필요한 기능을 제공한다
-//    private val applicationEventPublisher: ApplicationEventPublisher, <- 해당 부분은 그냥 당근 초창기 kafka를 사용하지 않았을때 이벤트 처리를 위해 사용
     private val kafkaSender: KafkaSender<String, String>
 ) : EventPublisher {
 
@@ -47,11 +44,9 @@ class EventPublisherImpl(
             )
     }
 
-    override suspend fun deleteEventPublisher(deleteBusinessAccountEvent: DeleteBusinessAccountEvent) {
-        // applicationEventPublisher.publishEvent(deleteBusinessAccountEvent)
-
-        // 보낼 record 작성
-        val message = eventObjectMapper.writeValueAsString(deleteBusinessAccountEvent)
+    override suspend fun publish(deleteEvent: DeleteEvent) {
+        //1. 보낼 record 작성
+        val message = eventObjectMapper.writeValueAsString(deleteEvent)
         val outboundFlux = Flux.range(1, 10)
             .map { i: Int ->
                 SenderRecord.create(
@@ -59,7 +54,7 @@ class EventPublisherImpl(
                 )
             }
 
-        // Send message to kafka
+        //2. Send message to kafka
         kafkaSender.send(outboundFlux).doOnError { e -> log.error(e.message, e) }
             .subscribe { r ->
                 val metadata = r.recordMetadata()

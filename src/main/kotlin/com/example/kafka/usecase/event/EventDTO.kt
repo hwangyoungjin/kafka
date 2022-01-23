@@ -4,37 +4,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 import java.time.LocalDateTime
 
-@JsonTypeName(BusinessAccountEventType.BA_CREATE)
-data class CreateBusinessAccountEvent(
-    val businessAccountDto: BusinessAccountDto,
-    val actorDto: ActorEventDto,
-    val createdAt: LocalDateTime
-) : BusinessAccountEvent(BusinessAccountEventType.BA_CREATE, businessAccountDto.id.toString())
-
-@JsonTypeName(BusinessAccountEventType.BA_UPDATE)
-data class UpdateBusinessAccountEvent(
-    val beforeUpdate: BusinessAccountDto,
-    val afterUpdate: BusinessAccountDto,
-    val actorDto: ActorEventDto,
-    val updatedAt: LocalDateTime
-) : BusinessAccountEvent(BusinessAccountEventType.BA_UPDATE, afterUpdate.id.toString())
-
-@JsonTypeName(BusinessAccountEventType.BA_DELETE)
-data class DeleteBusinessAccountEvent(
-    val businessAccountDto: BusinessAccountDto,
+@JsonTypeName(EventType.BA_DELETE)
+data class DeleteEvent(
+    val dto: Dto,
     val actorDto: ActorEventDto,
     val deletedAt: LocalDateTime
-) : BusinessAccountEvent(BusinessAccountEventType.BA_DELETE, businessAccountDto.id.toString())
+) : Event(EventType.BA_DELETE, dto.id.toString())
 
-@JsonTypeName(BusinessAccountEventType.BA_UNDELETE)
-data class UndeleteBusinessAccountEvent(
-    val businessAccountDto: BusinessAccountDto,
-    val actorDto: ActorEventDto,
-    val undeletedAt: LocalDateTime
-) : BusinessAccountEvent(BusinessAccountEventType.BA_UNDELETE, businessAccountDto.id.toString())
-
-
-data class BusinessAccountDto(
+data class Dto(
     val id: Long,
     val name: String,
     val categoryId: Int? = null,
@@ -48,10 +25,6 @@ data class BusinessAccountDto(
     val createdAt: LocalDateTime,
     val updatedAt: LocalDateTime,
 )
-
-enum class UserType {
-    USER, BA, ADMIN
-}
 
 data class ActorEventDto(
     var userType: String,
@@ -69,7 +42,7 @@ data class ActorEventDto(
     property = "type",
     visible = true
 )
-sealed class BusinessAccountEvent(
+sealed class Event(
     type: String,
     subject: String,
 ) : BaseEvent(
@@ -90,19 +63,6 @@ open class BaseEvent(
     val subject: String
 )
 
-object BusinessAccountEventType {
-    const val BA_CREATE = "ba.create"
-    const val BA_UPDATE = "ba.update"
+object EventType {
     const val BA_DELETE = "ba.delete"
-    const val BA_UNDELETE = "ba.undelete"
-    const val BA_FOLLOW = "ba.follow"
-    const val BA_UNFOLLOW = "ba.unfollow"
-    const val BA_NOTIFICATION_ALLOW = "ba.notification.allow"
-    const val BA_NOTIFICATION_DISALLOW = "ba.notification.disallow"
-    const val BU_CREATE = "bu.create"
-    const val BA_EXTRA_CREATE = "ba.extra.create"
-    const val BA_EXTRA_UPDATE = "ba.extra.update"
-    const val BAU_CREATE = "bau.create"
-    const val BAU_DELETE = "bau.delete"
-
 }

@@ -1,7 +1,5 @@
 package com.example.kafka.config
 
-import com.example.kafka.usecase.event.BaseEvent
-import com.example.kafka.usecase.event.BusinessAccountEvent
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -30,9 +28,8 @@ class KafkaConfig {
     fun kafkaSender(): KafkaSender<String, String> {
         val props = mapOf<String, Any>(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBootStrapServers,
-//            ProducerConfig.CLIENT_ID_CONFIG to "commerce-producer",
+//            ProducerConfig.CLIENT_ID_CONFIG to "test-producer",
             ProducerConfig.ACKS_CONFIG to "all",
-//            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java, //mercury
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java
         )
@@ -44,11 +41,11 @@ class KafkaConfig {
     fun kafkaReceiver(): KafkaReceiver<String, String> {
         val props = mapOf<String, Any>(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG to kafkaBootStrapServers,
-//            ConsumerConfig.CLIENT_ID_CONFIG to "commerce-consumer",
+//            ConsumerConfig.CLIENT_ID_CONFIG to "test-consumer",
             ConsumerConfig.GROUP_ID_CONFIG to groupId,
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG to StringDeserializer::class.java,
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest"
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
         )
         val receiverOptions = ReceiverOptions.create<String, String>(props).subscription(listOf(topic))
         return KafkaReceiver.create(receiverOptions)

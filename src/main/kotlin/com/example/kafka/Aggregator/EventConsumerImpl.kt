@@ -52,60 +52,11 @@ class EventConsumerImpl(
             }
     }
 
-    override suspend fun deleteEventConsumer() {
+    override suspend fun subscribe() {
         // receive message
         val kafkaFlux = kafkaReceiver.receive()
         kafkaFlux.subscribe {
             println("========================Start==================================")
-            if (it.value().contains(BusinessAccountEventType.BA_UPDATE) || it.value()
-                .contains(BusinessAccountEventType.BA_DELETE) || it.value()
-                    .contains(BusinessAccountEventType.BA_UNDELETE)
-            ) {
-                println("========================Check finished==================================")
-                val strIndex = it.value().indexOfFirst { c -> c == '{' }
-                val json = it.value().substring(strIndex)
-                val ba = eventObjectMapper.readValue(json, BaseEvent::class.java)
-                var account: Any
-                when (ba.type) {
-                    BusinessAccountEventType.BA_UPDATE -> {
-
-                        account = eventObjectMapper.readValue(
-                            json,
-                            UpdateBusinessAccountEvent::class.java
-                        )
-                        println("BA Update!!")
-                        if (account.afterUpdate.status == "ACTIVE") {
-                            println("store: inActive -> Active \n Product ALL Inactive")
-                        } else if (account.afterUpdate.status == "INACTIVE") {
-                            println("store: Active -> inActive \n Product ALL Inactive")
-                        } else {
-                            println("None!")
-                        }
-                    }
-                    BusinessAccountEventType.BA_DELETE -> {
-
-                        account = eventObjectMapper.readValue(
-                            json,
-                            DeleteBusinessAccountEvent::class.java
-                        )
-                        println("BA Delete!!")
-                        println("Store, Product Delete !!")
-                    }
-                    BusinessAccountEventType.BA_UNDELETE -> {
-                        account = eventObjectMapper.readValue(
-                            json,
-                            UndeleteBusinessAccountEvent::class.java
-                        )
-                        println("BA UnDelete!!")
-                        if (account.businessAccountDto.status == "ACTIVE") {
-                            println("store: Active because Active Status of BA")
-                        } else if (account.businessAccountDto.status == "INACTIVE") {
-                            println("store 변화 없음! because InActive Status of BA")
-                        }
-                    }
-                    else -> RuntimeException("type error")
-                }
-            }
             val offset = it.receiverOffset()
             println(
                 "Received message: topic-partition=${offset.topicPartition()}, offset=${offset.offset()} " +
