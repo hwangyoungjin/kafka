@@ -205,19 +205,24 @@ override suspend fun publish(deleteEvent: DeleteEvent) {
 ```
 
 #### 2. Receiver
-
+- 참고 [Reactor onErrorContinue VS onErrorResume](https://devdojo.com/ketonemaniac/reactor-onerrorcontinue-vs-onerrorresume)
+- 참고 [reactor kafka](https://java.tutorialink.com/continue-consuming-subsequent-records-in-reactor-kafka-after-deserialization-exception/)
 ```kotlin
 override suspend fun subscribe() {
-    val kafkaFlux = kafkaReceiver.receive() // 1
-    kafkaFlux.subscribe {  // 2
-        println("========================Start==================================")
-        val offset = it.receiverOffset() 
-        println(
-            "Received message: topic-partition=${offset.topicPartition()}, offset=${offset.offset()} " +
-                    " key=${it.key()}, value=${it.value()}"
-        )
-        offset.acknowledge() // 3
-    }
+    kafkaReceiver.receive() // 1
+        .doOnNext {  // 2
+            println("========================Start==================================")
+            val offset = it.receiverOffset() 
+            println(
+                "Received message: topic-partition=${offset.topicPartition()}, offset=${offset.offset()} " +
+                        " key=${it.key()}, value=${it.value()}"
+            )
+            offset.acknowledge() // 3
+        }.onErrorContinue { e, u -> // 4
+                log.error(e.message, e)
+                log.info("continuing") 
+            }.doOnNext { it.receiverOffset().acknowledge() } // 5
+            .subscribe() // 6
 }
 ```
 1. kafkaReceiver.receive()
@@ -225,9 +230,22 @@ override suspend fun subscribe() {
 kafkaReceiver를 통해 커밋 가능한 receiverOffset가 담긴 ReceiverRecord 배열을 받는다.
 추후 receiverOffset.acknowledge()를 통해 반드시 commit을 수행해야 한다.
 ```
-2. subcribe{} 를 통해 각각의 message 출력
+2. doOnNext{} 를 통해 message 출력
 3. offset.acknowledge()
 ```text
 message의 담긴 receiverOffset 인스턴스에 대해
 acknowledge() 를 수행하여 commit을 완료한다.
+```
+4. [onErrorContinue](https://akageun.github.io/2019/07/26/spring-webflux-tip-3.html)
+```text
+onErrorContinue를 통해 doNext에서 error 발생시 'e' 를 출력하고 계속 진행한다.
+
+```
+5. doOnNext { it.receiverOffset().acknowledge() } // 5
+```
+에러 발생 후 acknowledge()가 없는데 이를 처리
+```
+6. subscribe()
+```text
+producer의 record를 subscribe() 하도록
 ```
